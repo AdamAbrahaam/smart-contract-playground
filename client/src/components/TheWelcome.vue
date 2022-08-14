@@ -1,6 +1,7 @@
 <template>
-  <button @click="sendEth">Send ETH</button>
-  Balance: {{ formattedBalance }}
+  <input v-model="amount" />
+  <button @click="send">Send ETH</button>
+  Balance: {{ pending ? '...' : formattedBalance }}
 </template>
 
 <script setup lang="ts">
@@ -11,15 +12,19 @@ import { computed, ref } from "vue";
 const { connectToContract } = useContracts();
 const contract = await connectToContract("Greeter");
 const balance = ref(await contract.getBalance())
+const pending = ref<boolean>(false)
+const amount = ref<string>('0')
 const formattedBalance = computed(() => utils.formatEther(balance.value))
 
 contract.on('BalanceChanged', (newBalance) => {
   balance.value = newBalance
+  pending.value = false
 })
 
-const sendEth = async () => {
-  const sendEthTx = await contract.deposit(utils.parseEther("1"), { value: utils.parseEther("1") });
-  await sendEthTx.wait();
+const send = async () => {
+  const sendTx = await contract.deposit(utils.parseEther("0.00001"), { value: utils.parseEther("0.00001") });
+  pending.value = true
+  await sendTx.wait();
 }
 
 </script>

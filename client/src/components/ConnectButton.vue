@@ -1,21 +1,11 @@
 <template>
-  <span v-if="connectedAddress">Connected</span>
+  <span v-if="connectedAddress">Connected {{ connectedAddress }}</span>
   <button v-else @click="connectWallet">Connect</button>
 </template>
 
 <script setup lang="ts">
-import { ethers } from "ethers";
-import { ref } from "vue";
+import { useWallet } from "@/composables/wallet";
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const connectedAddress = ref<string>((await provider.listAccounts())[0]);
-
-window.ethereum.on('accountsChanged', function (accounts: string[]) {
-  connectedAddress.value = accounts[0];
-});
-
-const connectWallet = async () => {
-  await provider.send("eth_requestAccounts", []);
-};
+const { connectedAddress, connectWallet } = useWallet()
 
 </script>
