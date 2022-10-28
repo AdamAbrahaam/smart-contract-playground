@@ -10,6 +10,9 @@ contract PiggyBank {
     mapping(address => mapping(string => Saving)) userSavings;
     mapping(address => string[]) userSavingNames;
 
+    event BalanceChanged(uint256 balance);
+    event SavingCreated();
+
     function createSaving(string memory _name, uint256 _savingLimit) public {
         require(bytes(_name).length > 0);
         require(_savingLimit > 0);
@@ -17,6 +20,7 @@ contract PiggyBank {
         Saving memory newSaving = Saving(_savingLimit, 0);
         userSavings[msg.sender][_name] = newSaving;
         userSavingNames[msg.sender].push(_name);
+        emit SavingCreated();
     }
 
     function deposit(string memory _savingName, uint256 _amount)
@@ -28,32 +32,34 @@ contract PiggyBank {
         require(_amount > 0);
 
         userSavings[msg.sender][_savingName].currentAmount += _amount;
+        emit BalanceChanged(this.getBalance());
     }
 
-    function withdraw(string memory _savingName) public {
+    function withdraw(string memory _savingName, uint256 _amount) public {
         require(bytes(_savingName).length > 0);
+        require(_amount > 0);
 
         Saving memory saving = userSavings[msg.sender][_savingName];
-        require(
-            saving.currentAmount >= saving.savingLimit,
-            "Trying to withdraw before limit reached"
-        );
+        require(_amount <= saving.currentAmount, "Trying to withdraw more than available");
+        require(saving.currentAmount >= saving.savingLimit, "Trying to withdraw before limit reached");
 
-        payable(msg.sender).transfer(saving.currentAmount);
+        (bool success, ) = payable(msg.sender).call{value: _amount}("");
+        require(success);
+        emit BalanceChanged(this.getBalance());
+
+        userSavings[msg.sender][_savingName].currentAmount -= _amount;
+        if (saving.currentAmount > 0) {
+          return;
+        }
+
         delete userSavings[msg.sender][_savingName];
 
         bool nameFound = false;
         for (uint256 i = 0; i < userSavingNames[msg.sender].length - 1; i++) {
             if (!nameFound) {
-                nameFound =
-                    keccak256(
-                        abi.encodePacked((userSavingNames[msg.sender][i]))
-                    ) ==
-                    keccak256(abi.encodePacked((_savingName)));
+                nameFound = keccak256(abi.encodePacked((userSavingNames[msg.sender][i]))) == keccak256(abi.encodePacked((_savingName)));
             } else {
-                userSavingNames[msg.sender][i] = userSavingNames[msg.sender][
-                    i + 1
-                ];
+                userSavingNames[msg.sender][i - 1] = userSavingNames[msg.sender][i];
             }
         }
         userSavingNames[msg.sender].pop();
@@ -70,5 +76,9 @@ contract PiggyBank {
     {
         require(bytes(_savingName).length > 0);
         return userSavings[msg.sender][_savingName];
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }

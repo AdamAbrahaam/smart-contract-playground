@@ -8,6 +8,10 @@ const contracts = [
     name: "Greeter",
     args: ["Hello !"],
   },
+  {
+    name: "PiggyBank",
+    args: [],
+  },
 ];
 
 async function publishContract(
