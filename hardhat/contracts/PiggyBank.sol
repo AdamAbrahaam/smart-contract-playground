@@ -14,8 +14,8 @@ contract PiggyBank {
     event SavingCreated();
 
     function createSaving(string memory _name, uint256 _savingLimit) public {
-        require(bytes(_name).length > 0);
-        require(_savingLimit > 0);
+        require(bytes(_name).length > 0, "Saving name not set");
+        require(_savingLimit > 0, "Saving limit not defined");
 
         Saving memory newSaving = Saving(_savingLimit, 0);
         userSavings[msg.sender][_name] = newSaving;
@@ -27,27 +27,28 @@ contract PiggyBank {
         public
         payable
     {
-        require(bytes(_savingName).length > 0);
-        require(msg.value == _amount);
-        require(_amount > 0);
+        require(bytes(_savingName).length > 0, "Saving name not defined");
+        require(msg.value == _amount, "Invalid amount");
+        require(_amount > 0, "Amount must be higher than 0");
 
         userSavings[msg.sender][_savingName].currentAmount += _amount;
         emit BalanceChanged(this.getBalance());
     }
 
     function withdraw(string memory _savingName, uint256 _amount) public {
-        require(bytes(_savingName).length > 0);
-        require(_amount > 0);
+        require(bytes(_savingName).length > 0, "Saving name not defined");
+        require(_amount > 0, "Amount must be higher than 0");
 
         Saving memory saving = userSavings[msg.sender][_savingName];
         require(_amount <= saving.currentAmount, "Trying to withdraw more than available");
         require(saving.currentAmount >= saving.savingLimit, "Trying to withdraw before limit reached");
 
         (bool success, ) = payable(msg.sender).call{value: _amount}("");
-        require(success);
-        emit BalanceChanged(this.getBalance());
+        require(success, "Withdraw transaction failed");
 
         userSavings[msg.sender][_savingName].currentAmount -= _amount;
+        emit BalanceChanged(this.getBalance());
+
         if (saving.currentAmount > 0) {
           return;
         }
@@ -74,7 +75,7 @@ contract PiggyBank {
         view
         returns (Saving memory)
     {
-        require(bytes(_savingName).length > 0);
+        require(bytes(_savingName).length > 0, "Saving name not defined");
         return userSavings[msg.sender][_savingName];
     }
 
