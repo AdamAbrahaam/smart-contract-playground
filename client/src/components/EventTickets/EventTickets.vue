@@ -16,7 +16,7 @@
   <Button class="p-button-outlined w-full" @click="createEvent(eventName, dateTime, ticketPrice)" label="Create event" />
 
 
-  <Dropdown v-model="selectedEvent" :options="events" optionLabel="name" placeholder="Your saving accounts" class="w-full mt-8" />
+  <Dropdown v-model="selectedEvent" :options="events" optionLabel="name" placeholder="Available events" class="w-full mt-8" />
   <template v-if="selectedEvent">
     <p>
       Name: {{ selectedEvent.name }}

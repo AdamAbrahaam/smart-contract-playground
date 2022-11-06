@@ -29,6 +29,11 @@ export const useEventTickets = async () => {
     })
   }
 
+  contract.on('EventCreated', async () => {
+    contractToastInfo('Events', 'Event list is being updated')
+    events.value = await contract.getEvents()
+  })
+
   return {
     events,
     createEvent,
