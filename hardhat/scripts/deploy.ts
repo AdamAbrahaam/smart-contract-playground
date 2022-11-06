@@ -12,6 +12,10 @@ const contracts = [
     name: "PiggyBank",
     args: [],
   },
+  {
+    name: "EventTickets",
+    args: [],
+  },
 ];
 
 async function publishContract(
