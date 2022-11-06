@@ -1,14 +1,7 @@
 <template>
   <main>
-    <Suspense>
-      <TheWelcome v-if="connectedAddress" />
-    </Suspense>
+    SMART CONTRACT
+    PLAYGROUND
   </main>
 </template>
 
-<script setup lang="ts">
-import TheWelcome from "@/components/TheWelcome.vue";
-import { useWallet } from "@/composables/wallet";
-
-const { connectedAddress } = useWallet()
-</script>

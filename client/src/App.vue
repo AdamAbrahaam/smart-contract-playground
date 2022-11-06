@@ -1,27 +1,36 @@
 <template>
-  <header>
-    Playground
+  <div class="grid w-full">
+    <Toast /> 
+    
+    <div class="col-6">
+      <header>
+        <template v-if="providerConnected">
+          <div>
+            <ConnectButton />
+          </div>
 
-    <template v-if="providerConnected">
-      <Suspense>
-        <ConnectButton />
-      </Suspense>
-
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
-    </template>
-  </header>
-
-  <template v-if="providerConnected">
-    <RouterView />
-  </template>
-  <h1 v-else>
-    Please install MetaMask and reload the page!
-  </h1>
+          <div class="wrapper">
+            <nav>
+              <RouterLink to="/piggybank">PIGGYBANK</RouterLink>
+              <RouterLink to="/tickets">TICKETS</RouterLink>
+            </nav>
+          </div>
+        </template>
+      </header>
+    </div>
+    <div class="col-6">
+      <template v-if="providerConnected">
+      <Card>
+        <template #content>
+          <RouterView />
+        </template>
+      </Card>
+      </template>
+      <h1 v-else>
+        Please install MetaMask and reload the page!
+      </h1>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -34,11 +43,9 @@ const providerConnected = window.ethereum.isConnected();
 @import "@/assets/base.css";
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100vh;
   padding: 2rem;
-
-  font-weight: normal;
 }
 
 header {
@@ -51,10 +58,9 @@ header {
   margin: 0 auto 2rem;
 }
 
-a,
-.green {
+a {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: var(--color-text);
   transition: 0.4s;
 }
 
@@ -72,7 +78,7 @@ nav {
 }
 
 nav a.router-link-exact-active {
-  color: var(--color-text);
+  text-decoration: underline;
 }
 
 nav a.router-link-exact-active:hover {
@@ -85,32 +91,10 @@ nav a {
   border-left: 1px solid var(--color-border);
 }
 
-nav a:first-of-type {
-  border: 0;
-}
-
 @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
   }
 
   .logo {
@@ -120,7 +104,7 @@ nav a:first-of-type {
   nav {
     text-align: left;
     margin-left: -1rem;
-    font-size: 1rem;
+    font-size: 6rem;
 
     padding: 1rem 0;
     margin-top: 1rem;
