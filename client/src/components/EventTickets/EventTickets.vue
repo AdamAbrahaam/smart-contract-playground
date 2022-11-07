@@ -30,13 +30,20 @@
 
     <Button class="p-button-outlined w-full" @click="buyTicket(selectedEvent.id, selectedEvent.price)" label="Buy ticket" />
   </template>
+
+  <div v-if="addressTickets.length" class="mt-8">
+    <p>
+      Your tickets:
+    </p>
+    <img v-for="ticket in addressTickets" :key="ticket.id" :src="ticket.metadata.image" :alt="ticket.title" height="250" class="mx-1">
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useEventTickets } from "@/composables/EventTickets/EventTickets";
 import { ref } from "vue";
 
-const { createEvent, buyTicket, events, formatEther } = await useEventTickets()
+const { createEvent, buyTicket, events, addressTickets, formatEther } = await useEventTickets()
 
 const eventName = ref<string>('')
 const dateTime = ref<string>('')
