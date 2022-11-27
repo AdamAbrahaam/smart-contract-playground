@@ -1,3 +1,4 @@
+import { Contract } from "ethers";
 import { ethers } from "hardhat";
 
 const fs = require("fs");
@@ -18,16 +19,12 @@ const contracts = [
   },
 ];
 
-async function publishContract(
+async function copyContractToFrontEnd(
   contractName: string,
-  contractArgs: string[],
-  chainId: string | number
+  chainId: string | number,
+  contract: Contract,
+  client: string
 ) {
-  const contractFactory = await ethers.getContractFactory(contractName);
-  const contract = await contractFactory.deploy(...contractArgs);
-
-  console.log(contractName + " contract address: " + contract.address);
-
   // copy the contract JSON file to front-end and add the address field in it
   fs.copyFileSync(
     path.join(
@@ -38,25 +35,28 @@ async function publishContract(
         contractName +
         ".json"
     ), // source
-    path.join(__dirname, `../../client/src/contracts/` + contractName + ".json") // destination
+    path.join(
+      __dirname,
+      `../../${client}/src/contracts/` + contractName + ".json"
+    ) // destination
   );
 
   // check if addresses.json already exists
   const exists = fs.existsSync(
-    path.join(__dirname, `../../client/src/contracts/addresses.json`)
+    path.join(__dirname, `../../${client}/src/contracts/addresses.json`)
   );
 
   // if not, create the file
   if (!exists) {
     fs.writeFileSync(
-      path.join(__dirname, `../../client/src/contracts/addresses.json`),
+      path.join(__dirname, `../../${client}/src/contracts/addresses.json`),
       "{}"
     );
   }
 
   // update the addresses.json file with the new contract address
   const addressesFile = fs.readFileSync(
-    path.join(__dirname, `../../client/src/contracts/addresses.json`)
+    path.join(__dirname, `../../${client}/src/contracts/addresses.json`)
   );
   const addressesJson = JSON.parse(addressesFile);
 
@@ -67,9 +67,26 @@ async function publishContract(
   addressesJson[contractName][chainId] = contract.address;
 
   fs.writeFileSync(
-    path.join(__dirname, `../../client/src/contracts/addresses.json`),
+    path.join(__dirname, `../../${client}/src/contracts/addresses.json`),
     JSON.stringify(addressesJson)
   );
+}
+
+async function publishContract(
+  contractName: string,
+  contractArgs: string[],
+  chainId: string | number
+) {
+  const contractFactory = await ethers.getContractFactory(contractName);
+  const contract = await contractFactory.deploy(...contractArgs);
+
+  console.log(contractName + " contract address: " + contract.address);
+
+  fs.readdirSync("../").forEach((dir: string) => {
+    if (dir.includes("client")) {
+      copyContractToFrontEnd(contractName, chainId, contract, dir);
+    }
+  });
 }
 
 async function main() {
