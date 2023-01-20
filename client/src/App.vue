@@ -19,16 +19,13 @@
       </header>
     </div>
     <div class="col-6">
-      <template v-if="providerConnected">
+      <template>
       <Card>
         <template #content>
           <RouterView />
         </template>
       </Card>
       </template>
-      <h1 v-else>
-        Please install MetaMask and reload the page!
-      </h1>
     </div>
   </div>
 </template>
