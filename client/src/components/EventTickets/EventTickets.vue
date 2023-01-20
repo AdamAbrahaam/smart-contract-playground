@@ -33,7 +33,7 @@
 
   <div v-if="addressTickets.length" class="mt-8">
     <p>
-      Your tickets:
+      Your tickets
     </p>
     <img v-for="ticket in addressTickets" :key="ticket.id" :src="ticket.metadata.image" :alt="ticket.title" height="250" class="mx-1">
   </div>

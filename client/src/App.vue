@@ -35,8 +35,13 @@
 
 <script setup lang="ts">
 import ConnectButton from "@/components/ConnectButton.vue";
+import { onMounted, ref } from "vue";
 
-const providerConnected = window.ethereum.isConnected();
+const providerConnected = ref<boolean>(false)
+
+onMounted(() => {
+  providerConnected.value = window.ethereum.isConnected()
+})
 </script>
 
 <style>
